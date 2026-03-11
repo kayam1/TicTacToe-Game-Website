@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>Tic Tac Toe</title>
+    <link rel='stylesheet' type='text/css' media='screen' href='tictactoe.css'>
+</head>
+<body>
+    <h1>Tic Tac Toe Game</h1>
+    <h2 class="Score">Score</h2>
+    <h3><span id="p1Score">Player1:0</span><span id="p2Score">Player2:0</span></h3> 
+    <h2 id="h2Status">Turn: Player1(X)</h2>
+    <div>
+        <table>
+            <tr><td id="0"></td><td id="1"></td><td id="2"></td></tr>
+            <tr><td id="3"></td><td id="4"></td><td id="5"></td></tr>
+            <tr><td id="6"></td><td id="7"></td><td id="8"></td></tr>
+        </table>
+    </div>
+
+    <button id="restartButton" onclick="resetBoard()">Play Again</button>
+</body>
+</html>
+
+<script>
+//global variable and const declaration 
+var game_active = true;
+const SIZE = 3;
+var p1score = 0;
+var p2score = 0;
+var turn = 1;
+
+//instead of adding on hover, on mouse out and on click events to every td in html I look for all td elements using query selector 
+//And I loop to constantly check for events on each td
+const td = document.querySelectorAll('td');
+for (let i of td) 
+{
+    i.addEventListener('mouseenter', function()
+    {
+        hover(this);
+    })
+    i.addEventListener('mouseout', function()
+    {
+        out(this);
+    })  
+    i.addEventListener('click', function()
+    {
+        myTurn(this);
+    })
+}
+
+
+
+function hover(btn) //adds a slightly darker color to the tile that is being hovered 
+{
+    if (game_active == true || btn.textContent == false)    //doesn't work when game is over or when tile has already X or O
+        btn.style.background = "rgb(150, 112, 165, 0.8)";
+}
+
+function out(btn) //removes said color and restores the original color of the background for specific tile
+{
+    if (game_active == true || btn.textContent == false)     //doesn't work when game is over or when tile has already X or O
+    btn.style.backgroundColor = "rgb(161, 139, 179)";
+}
+
+function myTurn(btn) //gives the ability to put X or O to a tile if the game is still active. If it's over makes it not active updates scores, updates turn and messages to the screen
+{ //also makes the replay button visible when the game is over to restart the game
+    
+    if (game_active == true && btn.textContent == false)    //you can only click empty tiles when the game is still active
+    {   
+        btn.textContent = makeMove();   //adding X or O depending on turn
+        
+        let check = gameOver(); //checks if game is over
+        if (check != "Ongoing") //if its over
+        {
+            game_active = false; //change this to false to turn off all playing and visual functions
+            gameStatus(check);  //update players about the state of the game (who won or if its a draw)
+            changeScore();  //add +1 to the score of whoever won or do nothing if its a draw
+            document.getElementById('restartButton').classList.add('visible');  //make replay button visible
+            if (check == "Draw") //Last clicked tile was being locked having darker color because of the check in function "out" so this resets it
+                btn.style.backgroundColor = "rgb(161, 139, 179)";
+        }
+        else
+        {
+            turn++; //if its not over go to next turn
+            gameStatus(check);  //update players about turn
+        }
+    }
+}
+
+function makeMove() //adding X or O depending on turn
+{
+    if (turn%2 == 1)
+        return 'X';
+    else 
+        return 'O';
+}
+
+function count(table_value, count)  //Counts up to 3 for 3 consecutive Xs or Os
+{   //index 0 is for player1 and index 1 is for player2 (count is an array)
+    if (table_value == 'X')
+        count[0]++;
+    else if (table_value == 'O')
+        count[1]++;
+}
+
+function gameOver() //All caclucations to check who won and how (it returns only who won and calls to add highlight) unless no one wins the it returns "Ongoing"
+{
+    let draw = 0;
+
+    let table = [[],[],[]]; //initializing 2d array for 3x3 table
+    for (let i=0; i<SIZE; i++)
+        for(let j=0; j<SIZE; j++)
+            table [i][j] = document.getElementById(i*SIZE+j).textContent    //getting id of 0 - 8 (all tds) and adds their text contents into table (X or 0)
+
+    for(i=0;i<SIZE;i++)//HORIZONTAL WIN + DRAW CALCULATION
+    {
+        let countXO = [0 , 0];  //resetting count 
+        for(j=0;j<SIZE;j++)
+        {
+            count(table[i][j], countXO);   
+            if (table[i][j] != "")  
+                draw++;
+        }
+        if (countXO[0] == 3)    
+        {
+            highlight(document.getElementById(i*SIZE+0), document.getElementById(i*SIZE+1), document.getElementById(i*SIZE+2)); //getting all horizontal elements
+            return "P1Win";
+        }
+        else if (countXO[1] == 3)
+        {
+            highlight(document.getElementById(i*SIZE+0), document.getElementById(i*SIZE+1), document.getElementById(i*SIZE+2));
+            return "P2Win";
+        }
+    }
+
+    for(j=0; j<SIZE; j++) //VERTICAL WIN
+    {
+        countXO = [0 , 0];  //resetting count 
+        for (i=0; i<SIZE; i++)
+            count(table[i][j], countXO);
+        if (countXO[0] == 3)
+        {
+            highlight(document.getElementById(j+SIZE*0), document.getElementById(j+SIZE*1), document.getElementById(j+SIZE*2)); //getting all vertical elements
+            return "P1Win";
+        }
+        else if (countXO[1] == 3)
+        {
+            highlight(document.getElementById(j+SIZE*0), document.getElementById(j+SIZE*1), document.getElementById(j+SIZE*2));
+            return "P2Win";
+        }
+    }
+
+    countXO = [0 , 0];  //resetting count 
+    for(i=0;i<SIZE;i++) //MAIN DIAGONAL WIN
+        count(table[i][i], countXO);
+    if (countXO[0] == 3)
+    {
+        highlight(document.getElementById(0), document.getElementById(4), document.getElementById(8));  //getting all main diagonal elements
+        return "P1Win";
+    }
+    else if (countXO[1] == 3)
+    {
+        highlight(document.getElementById(0), document.getElementById(4), document.getElementById(8));
+        return "P2Win";
+    }
+
+    countXO = [0 , 0];  //resetting count 
+    for(i=0;i<SIZE;i++) //REVERSE DIAGONAL WIN
+        count(table[i][SIZE-1-i], countXO);    
+    if (countXO[0] == 3)
+    {
+        highlight(document.getElementById(2), document.getElementById(4), document.getElementById(6));  //getting reverse diagonal elements
+        return "P1Win";
+    }
+    else if (countXO[1] == 3)
+    {
+        highlight(document.getElementById(2), document.getElementById(4), document.getElementById(6));
+        return "P2Win";
+    }
+
+    if (draw == SIZE*SIZE) //DRAW CONDITION
+    {
+        return "Draw";  //if draw count == 9 then table is full and no one won in the above checks so it's a draw
+    }
+
+    return "Ongoing";   //all checks failed: game goes on
+}
+
+function highlight(cell1, cell2, cell3) //visual highlight showing the winning combination for clarity to the players 
+{
+    cell1.style.background = "rgb(150, 112, 165, 0.8)";
+    cell2.style.background = "rgb(150, 112, 165, 0.8)";
+    cell3.style.background = "rgb(150, 112, 165, 0.8)";   
+}
+
+function gameStatus(check)  //update players about the state of the game (who's turn it is or who won or if its a draw) by changing the message in the h2 tag with id="h2Status"
+{
+    if (game_active == true)//if the game is active change turn
+        if (turn%2 == 1)    //for player1
+            document.getElementById("h2Status").textContent = "Turn: Player1(X)";
+        else    //for player2
+            document.getElementById("h2Status").textContent = "Turn: Player2(O)";
+    else //if the game is over change message to show who won
+        if (check == "P1Win")
+        {
+            document.getElementById("h2Status").textContent = "Player1 Wins!";
+            p1score++;  //tracking wins for player1
+        }
+        else if (check == "P2Win")
+        {
+            document.getElementById("h2Status").textContent = "Player2 Wins!";
+            p2score++;  //tracking wins for player2
+        }
+        else if (check == "Draw")
+            document.getElementById("h2Status").textContent = "It's a Draw...";
+        
+}
+
+function resetBoard()   //Resets the board initializing turn and game status values also makes replay button invisible again until game is over
+{
+    if (game_active == false)
+    {
+        game_active = true;
+        turn = 1;  
+        gameStatus("Ongoing")   //prints who's turn it is
+        document.getElementById('restartButton').classList.remove('visible'); //makes button invisible for next game  
+
+        const td = document.querySelectorAll('td'); 
+        for (let i of td) //resets all td's of table making them empty and removing winner's highlight
+        {
+            i.textContent = "";
+            i.style.background = "rgb(161, 139, 179)";
+        }
+    }
+}
+
+function changeScore()  //Updates score for both players
+{
+    document.getElementById("p1Score").textContent = "Player1:"+p1score
+    document.getElementById("p2Score").textContent = "Player2:"+p2score
+}
+
+</script>

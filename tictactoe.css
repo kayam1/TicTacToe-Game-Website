@@ -1,0 +1,109 @@
+body    
+{
+    background-color: rgb(149, 199, 199);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+h1
+{
+    text-align: center;
+    text-decoration: underline;
+}
+
+h2
+{
+    text-align: center;
+}
+
+.Score
+{
+    margin-top: 2%;
+}
+
+h3
+{   /* to add gap between 2 words in h3*/
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+h3 span 
+{   /* to add gap between 2 words in h3*/
+    margin: 0 25px; 
+}
+
+table
+{   
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse; 
+    border-style: hidden;   /* to make the signature minimalistic tic tac toe grid */
+    width:auto; 
+    table-layout: fixed;    /* so table doesn't expand when adding new elements to it */
+}
+
+td
+{
+    border: 3px solid black;
+    border-radius: 20%; /* nice rounded tiles */
+
+    width: 150px; 
+    height: 150px; 
+
+    /* so table doesn't expand when adding new elements to it */
+    box-sizing: border-box; 
+    position: relative;
+    overflow: hidden; 
+
+    text-align: center;
+    font-size:300%;
+    font-weight: bold;
+
+    /* making it smoother */
+    transition: all 0.2s ease;
+}
+
+div /* for the background of the table */
+{
+    margin-right: 35%;
+    margin-left: 35%;
+    padding-top: 3%;
+    padding-bottom: 3%;
+
+    background-color: rgb(161, 139, 179);
+    border-radius: 10%;
+}
+
+button
+{
+    opacity: 0; /* hidding button */
+    
+    display: block;
+    margin: 30px auto;  /* making it centered */
+    padding: 10px 25px; /* adjusting size */
+    border: none;
+    border-radius: 20px;   
+
+    font-family: 'Courier New', Courier, monospace; 
+    font-size: 25px;
+    font-weight: bold;
+
+    background-color: rgb(161, 139, 179);
+
+    /* making it smoother */
+    transition: all 0.1s ease;
+}
+
+button.visible
+{
+    /* making it visible + cursor changes to hand*/
+    opacity: 1;
+    cursor: pointer;
+}
+
+button:hover
+{
+    /* change color and move slightly on hover */
+    background-color: rgb(150, 112, 165, 0.9);
+    transform: translateY(-1px);
+}
